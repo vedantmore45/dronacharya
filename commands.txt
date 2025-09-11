@@ -1,0 +1,3 @@
+
+$env:Path = "C:\Users\vedant.more\AppData\Local\nvm\v22.14.0;" + $env:Path
+cmd /c "npm run dev"
