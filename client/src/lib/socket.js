@@ -6,11 +6,17 @@ const PROBE_TIMEOUT_MS = 3000;
 
 let statusMessageLogged = false;
 
+/** Dev uses Vite proxy (/api/health). Remote API uses root (always on deployed builds). */
+function getProbeUrl() {
+  return API_BASE ? `${API_BASE}/` : '/api/health';
+}
+
 async function isServerReachable() {
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), PROBE_TIMEOUT_MS);
   try {
-    const res = await fetch(`${API_BASE}/api/health`, { signal: controller.signal });
+    const res = await fetch(getProbeUrl(), { signal: controller.signal });
+    if (API_BASE) return res.ok;
     return res.status === 204;
   } catch {
     return false;
