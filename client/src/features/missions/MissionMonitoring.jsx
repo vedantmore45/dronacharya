@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import api from '../../lib/api';
-import io from 'socket.io-client';
+import { subscribeTelemetry } from '../../lib/socket';
 import DroneMap from '../map/DroneMap';
 
 const MissionMonitoring = () => {
@@ -8,24 +8,16 @@ const MissionMonitoring = () => {
   const [telemetry, setTelemetry] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [socket, setSocket] = useState(null);
 
   useEffect(() => {
     fetchMissions();
     fetchTelemetry();
-    
-    // Initialize WebSocket connection
-    const newSocket = io('http://localhost:5000');
-    setSocket(newSocket);
 
-    // Listen for real-time telemetry updates
-    newSocket.on('telemetryUpdate', (data) => {
-      setTelemetry(prev => [data, ...prev.slice(0, 99)]); // Keep last 100 updates
+    const unsubscribe = subscribeTelemetry((data) => {
+      setTelemetry((prev) => [data, ...prev.slice(0, 99)]);
     });
 
-    return () => {
-      newSocket.close();
-    };
+    return unsubscribe;
   }, []);
 
   const fetchMissions = async () => {

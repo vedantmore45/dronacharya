@@ -31,6 +31,10 @@ app.get("/", (req, res) => {
   res.send("Dronacharya API is running...");
 });
 
+app.get("/api/health", (req, res) => {
+  res.sendStatus(204);
+});
+
 // Start server with socket.io
 const server = http.createServer(app);
 const io = new Server(server, {
